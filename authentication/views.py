@@ -1,9 +1,10 @@
 from django.http import HttpResponse
 from rest_framework import generics,status
 from rest_framework.response import Response
+from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework.permissions import IsAuthenticated,AllowAny
 from .models import User
-from .serializers import UserRegisterSerializer
+from .serializers import UserRegisterSerializer,CustomTokenObtainPairSerializer
 
 class UserRegisterView(generics.CreateAPIView):
     queryset = User.objects.all()
@@ -17,3 +18,6 @@ class UserRegisterView(generics.CreateAPIView):
         return super().create(request, *args, **kwargs)
 
 
+
+class CustomTokenObtainPairView(TokenObtainPairView):
+    serializer_class = CustomTokenObtainPairSerializer
