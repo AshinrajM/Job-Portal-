@@ -15,3 +15,14 @@ class Company(models.Model):
 
     def __str__(self):
         return self.name
+
+
+class JobListing(models.Model):
+    title = models.CharField(max_length=200)
+    comapny = models.ForeignKey(Company,on_delete=models.CASCADE,related_name='job_listings')
+    description = models.TextField()
+    requirements = models.TextField()
+    location = models.CharField(max_length=100)
+    salary = models.IntegerField()
+    created_at = models.DateTimeField(auto_now_add=True)
+    is_active = models.BooleanField(default=True)
