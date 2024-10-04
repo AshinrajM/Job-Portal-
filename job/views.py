@@ -1,5 +1,8 @@
-from rest_framework import generics, permissions
 from .models import JobListing
+from django_filters.rest_framework import DjangoFilterBackend
+from .filters import JobListingFilter
+from rest_framework import filters
+from rest_framework import generics, permissions
 from .serializers import JobListingSerializer
 from rest_framework.exceptions import PermissionDenied
 from rest_framework.permissions import IsAuthenticated
@@ -22,6 +25,9 @@ class JobListCreateView(generics.ListCreateAPIView):
     queryset = JobListing.objects.all()
     serializer_class = JobListingSerializer
     permission_classes = [IsAuthenticated, IsEmployerOrAdmin]
+    filter_backends = [DjangoFilterBackend, filters.SearchFilter]
+    filterset_class = JobListingFilter
+    search_fields = ["title", "company__name", "location"]
 
     def get_queryset(self):
         """
@@ -33,12 +39,35 @@ class JobListCreateView(generics.ListCreateAPIView):
 
     def perform_create(self, serializer):
         """
-        Handles the creation of a new job listing.If the user is an employer, the job listing is automatically associated with the employer's company.
+        Handles the creation of a new job listing.
+        Ensures that the job is always associated with the logged-in employer's company.
         """
-        if self.request.user.role in ["Admin", "Candidate"]:
-            raise PermissionDenied("You cannot create job listing...")
-        if self.request.user.role == "Employer":
-            company = self.request.user.companies.first()
+
+        user = self.request.user
+
+        # Only Admins and Candidates cannot create job listings
+
+        if user.role in ["Admin", "Candidate"]:
+            raise PermissionDenied("You cannot create job listings.")
+
+        # Employer job listing creation
+        if user.role == "Employer":
+            company = user.companies.first()
+
+            if not company:
+                raise ValidationError(
+                    "You must have a company associated with your account to create job listings."
+                )
+
+            # Check if the request includes a company and whether it matches the employer's company
+            request_company = self.request.data.get("company")
+
+            if request_company and str(company.id) != request_company:
+                raise PermissionDenied(
+                    "You can only create job listings for your own company."
+                )
+
+            # Save the job listing with the employer's company, ignoring any provided company value
             serializer.save(company=company)
 
 
