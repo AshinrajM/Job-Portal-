@@ -11,6 +11,9 @@ from rest_framework.permissions import IsAuthenticated
 # checking the permission for listing the job whether the user is admin or employer
 class IsEmployerOrAdmin(permissions.BasePermission):
     def has_permission(self, request, view):
+        # Allow all users (including candidates) to view job listings
+        if request.method in permissions.SAFE_METHODS:
+            return True
         return request.user.role in ["Employer", "Admin"]
 
 
@@ -21,7 +24,6 @@ class JobListCreateView(generics.ListCreateAPIView):
     - get_queryset: Filters job listings based on user role. Employers can only see their job listings.
     - perform_create: Saves the job listing under the employer's company when creating a new listing.
     """
-
     queryset = JobListing.objects.all()
     serializer_class = JobListingSerializer
     permission_classes = [IsAuthenticated, IsEmployerOrAdmin]
@@ -31,7 +33,7 @@ class JobListCreateView(generics.ListCreateAPIView):
 
     def get_queryset(self):
         """
-        Returns the queryset of job listings.Employers can only see their job listings, Admins can view all job listings.
+        Returns the queryset of job listings.Employers can only see their job listings, Admins and Candidates can view all job listings.
         """
         if self.request.user.role == "Employer":
             return JobListing.objects.filter(company__owner=self.request.user)
