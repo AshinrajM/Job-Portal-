@@ -31,3 +31,20 @@ class JobListing(models.Model):
         return self.title
 
         
+
+class JobApplication(models.Model):
+    STATUS_CHOICES = [
+        ('Pending', 'Pending'),
+        ('Accepted', 'Accepted'),
+        ('Rejected', 'Rejected'),
+    ]
+
+    candidate = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, limit_choices_to={'role': 'Candidate'})
+    job = models.ForeignKey(JobListing, on_delete=models.CASCADE, related_name='applications')
+    resume = models.FileField(upload_to='resumes/')
+    cover_letter = models.TextField(blank=True, null=True) 
+    applied_at = models.DateTimeField(auto_now_add=True)
+    status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='Pending')
+
+    def __str__(self):
+        return f"{self.candidate.username} - {self.job.title}"
