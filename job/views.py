@@ -19,14 +19,14 @@ class JobListCreateView(generics.ListCreateAPIView):
     def get_queryset(self):
         # Employers can only see their job listings
         if self.request.user.role == 'Employer':
-            return JobListing.objects.filter(comapny__owner=self.request.user)
+            return JobListing.objects.filter(company__owner=self.request.user)
         return JobListing.objects.all()
 
 
     def perform_create(self,serializer):
         if self.request.user.role == 'Employer':
             company = self.request.user.companies.first()
-            serializer.save(comapny=company)
+            serializer.save(company=company)
 
 
 class JobListDetailView(generics.RetrieveUpdateDestroyAPIView):
@@ -37,5 +37,5 @@ class JobListDetailView(generics.RetrieveUpdateDestroyAPIView):
     def get_queryset(self):
         # Employers can only see their job listings
         if self.request.user.role == 'Employer':
-            return JobListing.objects.filter(comapny__owner=self.request.user)
+            return JobListing.objects.filter(company__owner=self.request.user)
         return JobListing.objects.all()

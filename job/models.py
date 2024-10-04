@@ -19,7 +19,7 @@ class Company(models.Model):
 
 class JobListing(models.Model):
     title = models.CharField(max_length=200)
-    comapny = models.ForeignKey(Company,on_delete=models.CASCADE,related_name='job_listings')
+    company = models.ForeignKey(Company,on_delete=models.CASCADE,related_name='job_listings')
     description = models.TextField()
     requirements = models.TextField()
     location = models.CharField(max_length=100)

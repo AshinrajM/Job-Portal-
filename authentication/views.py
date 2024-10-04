@@ -2,6 +2,7 @@ from django.http import HttpResponse
 from rest_framework import generics, status
 from rest_framework.views import APIView
 from rest_framework.response import Response
+from rest_framework.generics import CreateAPIView 
 from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from .models import User
@@ -10,34 +11,16 @@ from .serializers import (
     CustomTokenObtainPairSerializer,
     UserRoleSerializer,
 )
-from rest_framework.generics import CreateAPIView
 
-
-# class UserRegisterView(generics.CreateAPIView):
-#     queryset = User.objects.all()
-#     serializer_class = UserRegisterSerializer
-#     permission_classes = [AllowAny]
-
-#     def create(self, request, *args, **kwargs):
-#         role = request.data.get("role", None)
-#         if role not in ["Candidate", "Employer"]:
-#             return Response(
-#                 {"error": "Invalid role"}, status=status.HTTP_400_BAD_REQUEST
-#             )
-#         return super().create(request, *args, **kwargs)
 
 
 class UserRegisterView(CreateAPIView):
     """
     API endpoint for user registration.
 
-    Expects a data :
-        - username: The desired username for the user.
-        - password: The user's password.
-        - role (optional): The user's role ("Candidate" or "Employer").
+    Expects a data : username, password, role 
 
-    Returns:
-        A JSON response with the created user data upon successful registration or exception.
+    Returns : A JSON response with the created user 
 
     """
 
@@ -47,11 +30,10 @@ class UserRegisterView(CreateAPIView):
 
     def create(self, request, *args, **kwargs):
         """
-        Handles POST requests to register a new user.
-
-        Checks for a valid "role" field in the request data.
+        Handles POST request and Checks for a valid "role" field in the request data.
         If the role is invalid, returns a 400 Bad Request error.
         Otherwise, calls the superclass's create method for further processing.
+
         """
 
         role = request.data.get("role", None)
