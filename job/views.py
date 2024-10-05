@@ -1,11 +1,40 @@
-from .models import JobListing, JobApplication
+from .models import JobListing, JobApplication,Company
 from django_filters.rest_framework import DjangoFilterBackend
 from .filters import JobListingFilter
 from rest_framework import filters
 from rest_framework import generics, permissions, viewsets
-from .serializers import JobListingSerializer, JobApplicationSerializer
+from .serializers import JobListingSerializer, JobApplicationSerializer,CompanySerializer
 from rest_framework.exceptions import PermissionDenied
 from rest_framework.permissions import IsAuthenticated
+
+
+class IsEmployer(permissions.BasePermission):
+    """
+    Custom permission to allow only Employers to update company profiles.
+    """
+
+    def has_permission(self, request, view):
+        # Only allow Employers to update the company profile
+        return request.user and request.user.role == "Employer"
+
+
+class CompanyUpdateView(generics.UpdateAPIView):
+    """
+    Only employers are allowed to update their company profiles.
+    """
+
+    queryset = Company.objects.all()
+    serializer_class = CompanySerializer
+    permission_classes = [IsEmployer]
+
+    def get_queryset(self):
+        """
+        Override to ensure that employers can only update their own company's profile.
+        """
+        user = self.request.user
+        if user.role == "Employer":
+            return Company.objects.filter(owner=user)
+        return Company.objects.none()
 
 
 # checking the permission for listing the job whether the user is admin or employer
@@ -27,7 +56,6 @@ class JobListCreateView(generics.ListCreateAPIView):
     queryset = JobListing.objects.all()
     serializer_class = JobListingSerializer
     permission_classes = [IsAuthenticated, IsEmployerOrAdmin]
-    # pagination_class = None
     filter_backends = [DjangoFilterBackend, filters.SearchFilter]
     filterset_class = JobListingFilter
     search_fields = ["title", "company__name", "location"]
@@ -151,7 +179,6 @@ class JobApplicationViewSet(viewsets.ModelViewSet):
         permissions.IsAuthenticated,
         IsAdminOrEmployerOrCandidate,
     ]
-    # pagination_class = None
 
     def get_queryset(self):
         user = self.request.user

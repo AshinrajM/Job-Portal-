@@ -1,5 +1,23 @@
 from rest_framework import serializers
-from .models import JobListing, JobApplication
+from .models import JobListing, JobApplication,Company
+
+
+
+class CompanySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Company
+        fields = ['name', 'location', 'description']
+
+    def update(self, instance, validated_data):
+        """
+        Update company profile
+        """
+        instance.name = validated_data.get('name', instance.name)
+        instance.location = validated_data.get('location', instance.location)
+        instance.description = validated_data.get('description', instance.description)
+        instance.save()
+        return instance
+
 
 
 class JobListingSerializer(serializers.ModelSerializer):
