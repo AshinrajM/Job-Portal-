@@ -24,6 +24,7 @@ This project uses JWT (JSON Web Token) for authentication via the SimpleJWT pack
       "password": "user_password",
       "role": "Employer" | "Candidate"
       }
+    Expected Response:201 CREATED
     - {
      "id": 1,
      "email": "example@example.com",
@@ -62,6 +63,7 @@ This project uses JWT (JSON Web Token) for authentication via the SimpleJWT pack
       "location": "City, Country",
       "company": "<company_id>"
       }
+      Expected Response:201 CREATED
     - {
       "id": 1,
       "title": "Software Developer",
@@ -73,6 +75,7 @@ This project uses JWT (JSON Web Token) for authentication via the SimpleJWT pack
     - Endpoint: /api/jobs/job-list/
     - Method: GET
     - Headers: Authorization: Bearer <access_token>
+    Expected Response : 200 Ok
     - [
         {
           "id": 1,
@@ -82,6 +85,13 @@ This project uses JWT (JSON Web Token) for authentication via the SimpleJWT pack
           "company": "Company Name"
         }
       ]
++ Delete a Job Application (DELETE)
+    - Only Admins and Employers can delete job job listings.
+    - URL:DELETE /api/jobs/job-list/<id>/
+    - Headers:Authorization: Bearer <your_token>
+    Expected Response: 204 No Content
+
+
 + Apply for Job(Applications creation) :
     - Endpoint: /api/jobs/job-applications/
     - Method: POST
