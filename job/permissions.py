@@ -20,13 +20,11 @@ class IsEmployerOrAdmin(permissions.BasePermission):
         return request.user.role in ["Employer", "Admin"]
 
 
-
-
 class IsAdminOrEmployerOrCandidate(permissions.BasePermission):
     """
-    - Admins: Full access to view, create, update, and delete.
-    - Employers: Can view, update, and delete job applications for their job listings.
-    - Candidates: Can create new job applications, and view their own applications.
+    Admins: Full access to view, create, update, and delete.
+    Employers: Can view, update, and delete job applications for their job listings.
+    Candidates: Can create new job applications, and view their own applications.
     """
 
     def has_permission(self, request, view):
