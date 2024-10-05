@@ -19,7 +19,7 @@ class JobListingSerializer(serializers.ModelSerializer):
 class JobApplicationSerializer(serializers.ModelSerializer):
     class Meta:
         model = JobApplication
-        fields = ["job", "resume", "cover_letter"]
+        fields = ["job", "resume", "cover_letter","status"]
 
     def validate_resume(self, value):
         """

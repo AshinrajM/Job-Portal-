@@ -20,7 +20,6 @@ class IsEmployerOrAdmin(permissions.BasePermission):
 class JobListCreateView(generics.ListCreateAPIView):
     """
     View to list all job listings or create a new job listing.
-    Methods:
     - get_queryset: Filters job listings based on user role. Employers can only see their job listings.
     - perform_create: Saves the job listing under the employer's company when creating a new listing.
     """
@@ -28,6 +27,7 @@ class JobListCreateView(generics.ListCreateAPIView):
     queryset = JobListing.objects.all()
     serializer_class = JobListingSerializer
     permission_classes = [IsAuthenticated, IsEmployerOrAdmin]
+    # pagination_class = None
     filter_backends = [DjangoFilterBackend, filters.SearchFilter]
     filterset_class = JobListingFilter
     search_fields = ["title", "company__name", "location"]
@@ -150,7 +150,8 @@ class JobApplicationViewSet(viewsets.ModelViewSet):
     permission_classes = [
         permissions.IsAuthenticated,
         IsAdminOrEmployerOrCandidate,
-    ]  # Add custom permission
+    ]
+    # pagination_class = None
 
     def get_queryset(self):
         user = self.request.user
@@ -197,7 +198,6 @@ class JobApplicationViewSet(viewsets.ModelViewSet):
         elif user.role == "Employer" and job_application.job.company.owner == user:
             serializer.save()
 
-        # Candidates cannot update their own applications
         else:
             raise PermissionDenied(
                 "You do not have permission to update this application."
