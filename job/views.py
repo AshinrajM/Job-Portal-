@@ -1,9 +1,14 @@
-from .models import JobListing, JobApplication,Company
+from django.core.mail import send_mail
+from .models import JobListing, JobApplication, Company
 from django_filters.rest_framework import DjangoFilterBackend
 from .filters import JobListingFilter
 from rest_framework import filters
 from rest_framework import generics, permissions, viewsets
-from .serializers import JobListingSerializer, JobApplicationSerializer,CompanySerializer
+from .serializers import (
+    JobListingSerializer,
+    JobApplicationSerializer,
+    CompanySerializer,
+)
 from rest_framework.exceptions import PermissionDenied
 from rest_framework.permissions import IsAuthenticated
 
@@ -205,7 +210,20 @@ class JobApplicationViewSet(viewsets.ModelViewSet):
 
         user = self.request.user
         if user.role == "Candidate":
-            serializer.save(candidate=user)
+            job_application = serializer.save(candidate=user)
+
+            job_listing = job_application.job
+            candidate_name = user.username
+            job_title = job_listing.title
+
+            send_mail(
+                subject=f" Application for {job_title}",
+                message=f"Your application for the job '{job_title}' has submitted successfully.",
+                from_email=None,
+                recipient_list=[user.email],
+                fail_silently=False,
+            )
+
         else:
             raise PermissionDenied("Only candidates can apply for jobs.")
 
